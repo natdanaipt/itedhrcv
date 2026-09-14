@@ -2,6 +2,55 @@
 @tailwind components;
 @tailwind utilities;
 
+/* รีเซ็ตและตั้งค่าพื้นหลังระบบ */
 body {
-  margin: 0;
+  @apply bg-slate-50 text-slate-800 antialiased overflow-hidden font-sans;
+}
+
+/* 🌟 ลูกเล่นเว่อร์ๆ 1: สร้างแสงออร่า (Glowing Orbs) ลอยไปมาเป็น Background */
+body::before, body::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(100px);
+  z-index: -1;
+  animation: blob 10s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body::before {
+  width: 45vw; height: 45vw;
+  background: rgba(99, 102, 241, 0.15); /* แสงสีม่วงคราม (Indigo) */
+  top: -10%; left: -10%;
+}
+
+body::after {
+  width: 40vw; height: 40vw;
+  background: rgba(236, 72, 153, 0.12); /* แสงสีชมพู (Pink) */
+  bottom: -10%; right: -10%;
+  animation-delay: -5s;
+}
+
+/* 🌟 ลูกเล่นเว่อร์ๆ 2: คลาสกระจกใส (Glassmorphism) สำหรับครอบคอมโพเนนต์ */
+.glass-panel {
+  @apply bg-white/60 backdrop-blur-xl border border-white/60 shadow-[0_8px_32px_0_rgba(31,38,135,0.05)];
+}
+
+.glass-sidebar {
+  @apply bg-slate-900/80 backdrop-blur-2xl border-r border-slate-700/50 shadow-[4px_0_24px_0_rgba(0,0,0,0.3)];
+}
+
+/* 🌟 ลูกเล่นเว่อร์ๆ 3: Scrollbar โปร่งแสงสุดโมเดิร์น */
+::-webkit-scrollbar {
+  width: 8px; height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300/80 rounded-full;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-indigo-500;
 }
