@@ -3,10 +3,11 @@ import { Database, Bell } from 'lucide-react';
 
 export default function Header({ currentTab }) {
   const titles = {
-    'org-chart': 'ระบบผังองค์กรอัตโนมัติ (Dynamic Organization Chart)',
-    'cv-generator': 'ระบบจัดทำ CV อัตโนมัติ (Automated CV Generator)',
-    'dashboard': 'แดชบอร์ดวิเคราะห์สถิติและสถานะทักษะ (Analytics Dashboard)',
-    'ai-parser': 'ระบบ AI สแกนและสกัดข้อมูล CV เก่า (AI Document Parsing)'
+    'org-chart':     'ระบบผังองค์กรอัตโนมัติ (Dynamic Organization Chart)',
+    'cv-generator':  'ระบบจัดทำ CV อัตโนมัติ (Automated CV Generator)',
+    'dashboard':     'แดชบอร์ดวิเคราะห์สถิติและสถานะทักษะ (Analytics Dashboard)',
+    'ai-parser':     'ระบบ AI สแกนและสกัดข้อมูล CV เก่า (AI Document Parsing)',
+    'job-matching':  'ระบบมอบหมายงาน AI (AI-Powered Job Matching)',
   };
 
   return (

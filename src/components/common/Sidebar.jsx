@@ -1,12 +1,13 @@
 import React from 'react';
-import { Network, FileText, BarChart3, Sparkles } from 'lucide-react';
+import { Network, FileText, BarChart3, Sparkles, Briefcase } from 'lucide-react';
 
 export default function Sidebar({ currentTab, setCurrentTab }) {
   const menuItems = [
-    { id: 'org-chart', label: 'ผังองค์กร (Org Chart)', icon: Network },
-    { id: 'cv-generator', label: 'ระบบสร้าง CV อัตโนมัติ', icon: FileText },
-    { id: 'dashboard', label: 'แดชบอร์ดวิเคราะห์ทักษะ', icon: BarChart3 },
-    { id: 'ai-parser', label: 'AI สแกน CV เก่า', icon: Sparkles },
+    { id: 'org-chart',     label: 'ผังองค์กร (Org Chart)',         icon: Network   },
+    { id: 'cv-generator',  label: 'ระบบสร้าง CV อัตโนมัติ',        icon: FileText  },
+    { id: 'dashboard',     label: 'แดชบอร์ดวิเคราะห์ทักษะ',        icon: BarChart3 },
+    { id: 'ai-parser',     label: 'AI สแกน CV เก่า',               icon: Sparkles  },
+    { id: 'job-matching',  label: 'มอบหมายงาน (Job Matching)',      icon: Briefcase },
   ];
 
   return (

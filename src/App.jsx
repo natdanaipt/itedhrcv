@@ -5,6 +5,7 @@ import OrgChartPage from './pages/OrgChartPage';
 import CVGeneratorPage from './pages/CVGeneratorPage';
 import DashboardPage from './pages/DashboardPage';
 import AIParserPage from './pages/AIParserPage';
+import JobMatchingPage from './pages/JobMatchingPage';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState('org-chart');
@@ -19,6 +20,8 @@ export default function App() {
         return <DashboardPage />;
       case 'ai-parser':
         return <AIParserPage />;
+      case 'job-matching':
+        return <JobMatchingPage />;
       default:
         return <OrgChartPage />;
     }

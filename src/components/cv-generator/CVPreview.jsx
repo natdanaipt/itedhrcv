@@ -3,13 +3,15 @@ import { Mail, Phone, Building2, Award, Briefcase, Download, Sparkles, MapPin, C
 import html2pdf from 'html2pdf.js';
 
 export default function CVPreview({ emp, template, selectedProjects = [] }) {
+  // รองรับทั้งโครงสร้างเก่า (emp.role) และใหม่ (emp.position)
+  const empNorm = { ...emp, role: emp.position || emp.role || '' };
 
   // ฟังก์ชันดาวน์โหลด PDF คุณภาพสูง (คมชัด A4)
   const handleExportPDF = () => {
     const element = document.getElementById('cv-export-area');
     const opt = {
       margin: 0,
-      filename: `CV_${emp.name.replace(/\s+/g, '_')}.pdf`,
+      filename: `CV_${empNorm.name.replace(/\s+/g, '_')}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2.5, useCORS: true, letterRendering: true },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -39,10 +41,10 @@ export default function CVPreview({ emp, template, selectedProjects = [] }) {
         className="bg-white rounded-xl shadow-2xl mx-auto overflow-hidden border border-slate-200/80 text-left text-slate-800"
         style={{ width: '210mm', minHeight: '297mm', boxSizing: 'border-box' }}
       >
-        {template === 'modern' && <ExecutiveModernTemplate emp={emp} selectedProjects={selectedProjects} />}
-        {template === 'modern-top' && <ExecutiveModernTopTemplate emp={emp} selectedProjects={selectedProjects} />}
-        {template === 'academic' && <AcademicFormalTemplate emp={emp} selectedProjects={selectedProjects} />}
-        {template === 'minimal' && <CleanMinimalTemplate emp={emp} selectedProjects={selectedProjects} />}
+        {template === 'modern' && <ExecutiveModernTemplate emp={empNorm} selectedProjects={selectedProjects} />}
+        {template === 'modern-top' && <ExecutiveModernTopTemplate emp={empNorm} selectedProjects={selectedProjects} />}
+        {template === 'academic' && <AcademicFormalTemplate emp={empNorm} selectedProjects={selectedProjects} />}
+        {template === 'minimal' && <CleanMinimalTemplate emp={empNorm} selectedProjects={selectedProjects} />}
       </div>
     </div>
   );

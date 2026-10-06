@@ -1,29 +1,36 @@
 import React from 'react';
-import { mockEmployees } from '../../data/mockData';
 import { FileText, Palette, LayoutTemplate, MonitorSmartphone } from 'lucide-react';
 
-export default function CVForm({ 
-  selectedEmp, 
-  setSelectedEmp, 
-  template, 
+const templateOptions = [
+  { id: 'academic', title: 'แบบยื่นเสนอโครงการ', subtitle: 'สไตล์ทางการวิชาการ', icon: FileText },
+  { id: 'modern', title: 'แบบโมเดิร์น (สไตล์แถบข้าง)', subtitle: 'ดีไซน์ 2 คอลัมน์ สีกรมท่า', icon: Palette },
+  { id: 'modern-top', title: 'แบบโมเดิร์น (สไตล์แถบบน)', subtitle: 'ดีไซน์แถบสีกราฟิกทันสมัย', icon: MonitorSmartphone },
+  { id: 'minimal', title: 'แบบมินิมอลกระชับ', subtitle: 'เรียบง่าย เหมาะกับสรุปย่อ', icon: LayoutTemplate },
+];
+
+/**
+ * CVForm รองรับทั้งโครงสร้าง projects เก่า (string[]) และใหม่ (object[])
+ * employees — รายการบุคลากรจาก personnelStore (ผ่าน prop แทนการ import โดยตรง)
+ */
+export default function CVForm({
+  employees,
+  selectedEmp,
+  setSelectedEmp,
+  template,
   setTemplate,
   selectedProjects,
   setSelectedProjects
 }) {
-  
-  const templateOptions = [
-    { id: 'academic', title: 'แบบยื่นเสนอโครงการ', subtitle: 'สไตล์ทางการวิชาการ', icon: FileText },
-    { id: 'modern', title: 'แบบโมเดิร์น (สไตล์แถบข้าง)', subtitle: 'ดีไซน์ 2 คอลัมน์ สีกรมท่า', icon: Palette },
-    { id: 'modern-top', title: 'แบบโมเดิร์น (สไตล์แถบบน)', subtitle: 'ดีไซน์แถบสีกราฟิกทันสมัย', icon: MonitorSmartphone },
-    { id: 'minimal', title: 'แบบมินิมอลกระชับ', subtitle: 'เรียบง่าย เหมาะกับสรุปย่อ', icon: LayoutTemplate },
-  ];
+  // normalize projects เป็น string เสมอสำหรับ display/checkbox
+  const projectTitles = (selectedEmp?.projects || []).map(p =>
+    typeof p === 'string' ? p : p.title
+  );
 
-  // ฟังก์ชันติ๊กเลือก/ยกเลิกเลือกผลงาน
-  const handleToggleProject = (proj) => {
-    if (selectedProjects.includes(proj)) {
-      setSelectedProjects(selectedProjects.filter(item => item !== proj));
+  const handleToggleProject = (title) => {
+    if (selectedProjects.includes(title)) {
+      setSelectedProjects(selectedProjects.filter(item => item !== title));
     } else {
-      setSelectedProjects([...selectedProjects, proj]);
+      setSelectedProjects([...selectedProjects, title]);
     }
   };
 
@@ -36,18 +43,23 @@ export default function CVForm({
       {/* 1. เลือกบุคลากร */}
       <div>
         <label className="block text-xs font-semibold text-slate-600 mb-1.5">เลือกบุคลากร</label>
-        <select 
+        <select
           className="w-full text-xs border border-slate-300 rounded-lg p-2.5 bg-white text-slate-800 focus:outline-none focus:border-indigo-500"
-          value={selectedEmp.id}
+          value={selectedEmp?.id || ''}
           onChange={(e) => {
-            const found = mockEmployees.find(emp => emp.id === parseInt(e.target.value));
+            const found = employees.find(emp => emp.id === e.target.value || emp.id === parseInt(e.target.value));
             if (found) setSelectedEmp(found);
           }}
         >
-          {mockEmployees.map(emp => (
-            <option key={emp.id} value={emp.id}>{emp.name} ({emp.role})</option>
+          {employees.map(emp => (
+            <option key={emp.id} value={emp.id}>
+              {emp.name} ({emp.position || emp.role || ''})
+            </option>
           ))}
         </select>
+        <p className="text-[10px] text-slate-400 mt-1">
+          {employees.length} คนในระบบ — สแกน CV เพื่อเพิ่มบุคลากรใหม่
+        </p>
       </div>
 
       {/* 2. เลือกเทมเพลต */}
@@ -58,7 +70,7 @@ export default function CVForm({
             มี {templateOptions.length} รูปแบบ
           </span>
         </div>
-        
+
         <div className="space-y-2">
           {templateOptions.map((opt) => {
             const Icon = opt.icon;
@@ -83,7 +95,7 @@ export default function CVForm({
                     <p className="text-[10px] text-slate-500">{opt.subtitle}</p>
                   </div>
                 </div>
-                {isSelected && <span className="w-2 h-2 rounded-full bg-indigo-600"></span>}
+                {isSelected && <span className="w-2 h-2 rounded-full bg-indigo-600" />}
               </button>
             );
           })}
@@ -92,17 +104,25 @@ export default function CVForm({
 
       {/* 3. เลือกผลงาน */}
       <div>
-        <label className="block text-xs font-semibold text-slate-600 mb-1.5">รายการผลงานที่ดึงมาจากฐานข้อมูลกลาง</label>
+        <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+          รายการผลงานที่ดึงมาจากฐานข้อมูลกลาง
+        </label>
         <div className="space-y-2 text-xs">
-          {selectedEmp.projects.map((proj, i) => (
-            <label key={i} className="flex items-start gap-2 text-slate-700 bg-slate-50 p-2.5 rounded-lg border border-slate-200/60 cursor-pointer hover:bg-indigo-50 transition">
-              <input 
-                type="checkbox" 
-                checked={selectedProjects.includes(proj)}
-                onChange={() => handleToggleProject(proj)}
-                className="rounded text-indigo-600 mt-0.5 cursor-pointer" 
+          {projectTitles.length === 0 && (
+            <p className="text-slate-400 italic text-[11px]">บุคลากรนี้ยังไม่มีผลงานในระบบ</p>
+          )}
+          {projectTitles.map((title, i) => (
+            <label
+              key={i}
+              className="flex items-start gap-2 text-slate-700 bg-slate-50 p-2.5 rounded-lg border border-slate-200/60 cursor-pointer hover:bg-indigo-50 transition"
+            >
+              <input
+                type="checkbox"
+                checked={selectedProjects.includes(title)}
+                onChange={() => handleToggleProject(title)}
+                className="rounded text-indigo-600 mt-0.5 cursor-pointer"
               />
-              <span className="text-[11px] leading-relaxed select-none">{proj}</span>
+              <span className="text-[11px] leading-relaxed select-none">{title}</span>
             </label>
           ))}
         </div>

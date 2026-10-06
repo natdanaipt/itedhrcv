@@ -2,7 +2,7 @@ import React from 'react';
 import { mockOrgStructure } from '../../data/mockData';
 import { Users, ChevronRight, CheckCircle2, ShieldAlert } from 'lucide-react';
 
-export default function OrgTree({ onSelectNode }) {
+export default function OrgTree({ onSelectNode, countOverrides = {} }) {
   const { director, executives, departments } = mockOrgStructure;
 
   return (
@@ -82,7 +82,7 @@ export default function OrgTree({ onSelectNode }) {
                     {dept.isRealData ? 'ข้อมูลจริง' : 'โครงสร้าง'}
                   </span>
                   <span className="flex items-center gap-1.5 text-[11px] text-indigo-600 font-bold bg-indigo-50 px-2 py-1 rounded-lg">
-                    <Users size={12} /> {dept.count}
+                    <Users size={12} /> {countOverrides[dept.name] ?? dept.count}
                   </span>
                 </div>
 
