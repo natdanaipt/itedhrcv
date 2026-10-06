@@ -2,15 +2,30 @@ import React from 'react';
 import { mockEmployees } from '../../data/mockData';
 import { FileText, Palette, LayoutTemplate, MonitorSmartphone } from 'lucide-react';
 
-export default function CVForm({ selectedEmp, setSelectedEmp, template, setTemplate }) {
+export default function CVForm({ 
+  selectedEmp, 
+  setSelectedEmp, 
+  template, 
+  setTemplate,
+  selectedProjects,
+  setSelectedProjects
+}) {
   
-  // เพิ่มแบบที่ 4 เข้าไปในระบบ (แสดงให้เห็นว่าขยายเพิ่มได้เรื่อยๆ)
   const templateOptions = [
     { id: 'academic', title: 'แบบยื่นเสนอโครงการ', subtitle: 'สไตล์ทางการวิชาการ', icon: FileText },
     { id: 'modern', title: 'แบบโมเดิร์น (สไตล์แถบข้าง)', subtitle: 'ดีไซน์ 2 คอลัมน์ สีกรมท่า', icon: Palette },
     { id: 'modern-top', title: 'แบบโมเดิร์น (สไตล์แถบบน)', subtitle: 'ดีไซน์แถบสีกราฟิกทันสมัย', icon: MonitorSmartphone },
     { id: 'minimal', title: 'แบบมินิมอลกระชับ', subtitle: 'เรียบง่าย เหมาะกับสรุปย่อ', icon: LayoutTemplate },
   ];
+
+  // ฟังก์ชันติ๊กเลือก/ยกเลิกเลือกผลงาน
+  const handleToggleProject = (proj) => {
+    if (selectedProjects.includes(proj)) {
+      setSelectedProjects(selectedProjects.filter(item => item !== proj));
+    } else {
+      setSelectedProjects([...selectedProjects, proj]);
+    }
+  };
 
   return (
     <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-5 text-left">
@@ -80,9 +95,14 @@ export default function CVForm({ selectedEmp, setSelectedEmp, template, setTempl
         <label className="block text-xs font-semibold text-slate-600 mb-1.5">รายการผลงานที่ดึงมาจากฐานข้อมูลกลาง</label>
         <div className="space-y-2 text-xs">
           {selectedEmp.projects.map((proj, i) => (
-            <label key={i} className="flex items-start gap-2 text-slate-700 bg-slate-50 p-2 rounded border border-slate-200/60">
-              <input type="checkbox" defaultChecked className="rounded text-indigo-600 mt-0.5" />
-              <span className="text-[11px] leading-relaxed">{proj}</span>
+            <label key={i} className="flex items-start gap-2 text-slate-700 bg-slate-50 p-2.5 rounded-lg border border-slate-200/60 cursor-pointer hover:bg-indigo-50 transition">
+              <input 
+                type="checkbox" 
+                checked={selectedProjects.includes(proj)}
+                onChange={() => handleToggleProject(proj)}
+                className="rounded text-indigo-600 mt-0.5 cursor-pointer" 
+              />
+              <span className="text-[11px] leading-relaxed select-none">{proj}</span>
             </label>
           ))}
         </div>

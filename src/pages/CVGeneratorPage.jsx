@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import CVForm from '../components/cv-generator/CVForm';
 import CVPreview from '../components/cv-generator/CVPreview';
 import { mockEmployees } from '../data/mockData';
@@ -6,6 +6,14 @@ import { mockEmployees } from '../data/mockData';
 export default function CVGeneratorPage() {
   const [selectedEmp, setSelectedEmp] = useState(mockEmployees[4]); // เริ่มต้นที่ อ.ภาคภูมิ
   const [template, setTemplate] = useState('academic'); // เริ่มต้นที่แบบยื่นเสนอโครงการ
+  
+  // State เก็บรายการผลงานที่ถูกติ๊กเลือก (ตั้งต้นให้เลือกทั้งหมดของคนนั้น)
+  const [selectedProjects, setSelectedProjects] = useState(mockEmployees[4].projects);
+
+  // เมื่อเปลี่ยนคนใน Dropdown ให้ดึงรายชื่อโครงการของคนใหม่มาติ๊กถูกทั้งหมดอัตโนมัติ
+  useEffect(() => {
+    setSelectedProjects(selectedEmp.projects);
+  }, [selectedEmp]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -15,10 +23,16 @@ export default function CVGeneratorPage() {
           setSelectedEmp={setSelectedEmp}
           template={template}
           setTemplate={setTemplate}
+          selectedProjects={selectedProjects}
+          setSelectedProjects={setSelectedProjects}
         />
       </div>
       <div className="lg:col-span-2">
-        <CVPreview emp={selectedEmp} template={template} />
+        <CVPreview 
+          emp={selectedEmp} 
+          template={template} 
+          selectedProjects={selectedProjects} 
+        />
       </div>
     </div>
   );

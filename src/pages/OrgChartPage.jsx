@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import OrgTree from '../components/org-chart/OrgTree';
 import { mockEmployees } from '../data/mockData';
-import { X, Mail, Phone, ShieldCheck, Sparkles, UserCircle2 } from 'lucide-react';
+import { X, Mail, Phone, ShieldCheck, Sparkles, UserCircle2, Database } from 'lucide-react';
 
 export default function OrgChartPage() {
   const [selectedNode, setSelectedNode] = useState(null);

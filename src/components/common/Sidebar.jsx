@@ -67,9 +67,8 @@ export default function Sidebar({ currentTab, setCurrentTab }) {
         <div className="absolute top-0 right-0 w-16 h-16 bg-indigo-500/10 rounded-full blur-xl group-hover:bg-indigo-500/30 transition-all duration-500"></div>
         <div className="flex items-center gap-2 mb-1.5">
           <Sparkles size={14} className="text-amber-400" />
-          <p className="font-bold text-slate-200 uppercase tracking-wider text-[11px]">Prototype V.2</p>
+          <p className="font-bold text-slate-200 uppercase tracking-wider text-[11px]">Prototype</p>
         </div>
-        <p className="text-[10px] opacity-70 leading-relaxed font-light">ยกระดับ UX/UI ล้ำสมัยด้วย Glassmorphism</p>
       </div>
     </aside>
   );
