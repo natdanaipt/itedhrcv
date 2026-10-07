@@ -33,9 +33,9 @@ function CategoryRadar({ persons, size = 300 }) {
   const toPath = pts => pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
 
   const getPersonCatLevel = (person, cat) => {
-    const catSkills = (person.skills || []).filter(s => s.category === cat);
+    const catSkills = (person.skills || []).filter(s => s.category === cat && (s.proficiency != null || s.level != null));
     if (!catSkills.length) return 0;
-    return Math.round(catSkills.reduce((s, sk) => s + sk.level, 0) / catSkills.length);
+    return Math.round(catSkills.reduce((s, sk) => s + (sk.proficiency ?? sk.level), 0) / catSkills.length);
   };
 
   const PERSON_COLORS = ['#6366f1','#10b981','#f59e0b'];
@@ -92,7 +92,7 @@ function CategoryBarChart({ employees }) {
   const catAvgs = useMemo(() => {
     return CATEGORIES.map(cat => {
       const levels = employees.flatMap(e =>
-        (e.skills || []).filter(s => s.category === cat).map(s => s.level)
+        (e.skills || []).filter(s => s.category === cat && (s.proficiency != null || s.level != null)).map(s => s.proficiency ?? s.level)
       );
       const avg = levels.length ? Math.round(levels.reduce((a, b) => a + b, 0) / levels.length) : 0;
       return { cat, avg };
@@ -147,7 +147,7 @@ export default function DashboardPage() {
   const catAvgs = useMemo(() => {
     return CATEGORIES.map(cat => {
       const levels = employees.flatMap(e =>
-        (e.skills || []).filter(s => s.category === cat).map(s => s.level)
+        (e.skills || []).filter(s => s.category === cat && (s.proficiency != null || s.level != null)).map(s => s.proficiency ?? s.level)
       );
       return {
         cat,
@@ -267,8 +267,8 @@ export default function DashboardPage() {
                       : 'bg-emerald-100 text-emerald-700 border-emerald-200'
                   }`}>ภาระงาน {primaryPerson.currentWorkload}%</span>
                 </div>
-                {(primaryPerson.skills || []).slice(0, 7).map((s, i) => (
-                  <SkillStatusBar key={i} skill={s.name} level={s.level} />
+                {(primaryPerson.skills || []).filter(s => s.proficiency != null || s.level != null).slice(0, 7).map((s, i) => (
+                  <SkillStatusBar key={i} skill={s.name} level={s.proficiency ?? s.level} />
                 ))}
               </>
             )}

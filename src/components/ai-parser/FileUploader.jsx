@@ -48,15 +48,9 @@ export default function FileUploader({ onScan, status }) {
     e.target.value = '';
   };
 
-  const handleScan = async () => {
+  const handleScan = () => {
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      // แยก base64 ส่วนข้อมูลออกจาก data URL prefix
-      const base64 = e.target.result.split(',')[1];
-      onScan({ fileBase64: base64, mimeType: file.type, fileName: file.name });
-    };
-    reader.readAsDataURL(file);
+    onScan(file);
   };
 
   const clearFile = () => {

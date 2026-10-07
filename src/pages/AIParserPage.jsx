@@ -127,33 +127,61 @@ export default function AIParserPage() {
     setSaved(false);
     setFileName(file.name);
     setExtractedData(null);
-
-    setScanStatus('reading');
-    await delay(600);
-
     setScanStatus('analyzing');
-    await delay(900);
+    setStatusMsg('');
 
-    const demo = makeDemoData(file.name);
-    setExtractedData(demo);
-    setScanStatus('done');
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('/api/cv/parse', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'เกิดข้อผิดพลาดในการวิเคราะห์');
+      setExtractedData(data);
+      setScanStatus('done');
+    } catch (err) {
+      console.error(err);
+      setStatusMsg(err.message);
+      setScanStatus('error');
+    }
   };
 
-  const handleSave = (data) => {
-    const existing = getAll().find(p =>
-      p.name === data.name && !p.id.startsWith('scanned-')
-    );
-
-    if (existing) {
-      const confirmed = window.confirm(
-        `"${data.name}" มีอยู่ในระบบแล้ว (ID: ${existing.id})\nต้องการแทนที่ข้อมูลเดิมหรือไม่?`
-      );
-      if (!confirmed) return;
-      savePerson({ ...data, id: existing.id });
-    } else {
-      savePerson(data);
+  const handleSave = async (data) => {
+    try {
+      const res = await fetch('/api/cv/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const resData = await res.json();
+      if (!res.ok) throw new Error(resData.error || 'บันทึกไม่สำเร็จ');
+      
+      // Update local storage so other pages see the new person immediately
+      const newPerson = {
+        id: 'emp-' + resData.id,
+        name: [data.personal?.title, data.personal?.first_name, data.personal?.last_name].filter(Boolean).join(' '),
+        position: data.personal?.position,
+        department: data.personal?.department,
+        email: data.personal?.email,
+        phone: data.personal?.phone,
+        education: data.education || [],
+        skills: (data.skills || []).map(s => ({ name: s.name, level: s.proficiency || 0, category: s.category })),
+        projects: data.projects || [],
+        currentWorkload: 0,
+      };
+      savePerson(newPerson);
+      
+      setSaved(true);
+      setTimeout(() => {
+        handleClear();
+      }, 2000);
+    } catch (err) {
+      alert('Error: ' + err.message);
+      throw err;
     }
-    setSaved(true);
   };
 
   const handleClear = () => {
@@ -161,6 +189,46 @@ export default function AIParserPage() {
     setScanStatus('idle');
     setFileName('');
     setSaved(false);
+    setStatusMsg('');
+  };
+
+  const handleGenerateMock = () => {
+    setFileName('mock_cv_test.pdf');
+    setScanStatus('done');
+    setStatusMsg('');
+    setExtractedData({
+      personal: {
+        title: 'ดร.',
+        first_name: 'สมหญิง',
+        last_name: 'รักเรียน',
+        position: 'นักวิจัยอาวุโส',
+        department: 'ฝ่ายบริการวิชาการและพัฒนานวัตกรรม',
+        organization: 'มหาวิทยาลัยทดสอบ',
+        email: 'somying.r@example.com',
+        phone: '089-999-9999'
+      },
+      education: [{ degree: 'ปริญญาเอก', major: 'วิศวกรรมซอฟต์แวร์', institution: 'มหาวิทยาลัยเทคโนโลยีมหานคร', year: '2560' }],
+      experience: [
+        { position: 'หัวหน้าทีมวิจัย', organization: 'สถาบันวิจัย AI', start: '2561', end: 'ปัจจุบัน', description: 'วิจัยด้าน Generative AI' }
+      ],
+      skills: [
+        { name: 'Machine Learning', proficiency: 95, category: 'AI & ML' },
+        { name: 'Python', proficiency: 90, category: 'Web & System' },
+        { name: 'Project Management', proficiency: 85, category: 'Management' }
+      ],
+      projects: [
+        { name: 'ระบบแนะนำหลักสูตรอัจฉริยะ', role: 'Project Manager', year: '2566', description: 'ใช้ AI สร้างแผนการเรียน', technologies: ['Python', 'React'] }
+      ],
+      certifications: [
+        { name: 'AWS Certified Machine Learning – Specialty', issuer: 'AWS', year: '2565' }
+      ],
+      languages: [
+        { language: 'English', level: 'Fluent' }
+      ],
+      summary: 'ผู้เชี่ยวชาญด้าน AI มีประสบการณ์กว่า 5 ปีในการพัฒนาระบบอัจฉริยะ',
+      uncertain_fields: [],
+      confidence: 0.95
+    });
   };
 
   return (
@@ -170,20 +238,13 @@ export default function AIParserPage() {
         <div className="absolute right-0 top-0 w-40 h-40 bg-white/5 rounded-full blur-2xl" />
         <div className="relative z-10">
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-bold bg-amber-400 text-amber-900 px-2 py-0.5 rounded-full">🧪 Demo Mode</span>
-            <span className="text-xs text-indigo-200">ไม่ต้องใช้ API Key</span>
+            <span className="text-xs font-bold bg-emerald-400 text-emerald-900 px-2 py-0.5 rounded-full">⚡ Live</span>
+            <span className="text-xs text-indigo-200">ประมวลผลด้วย AI จริง</span>
           </div>
-          <h3 className="text-base font-bold">AI สแกน CV — ระบบสาธิต</h3>
+          <h3 className="text-base font-bold">AI สแกน CV / ข้อมูลบุคลากร</h3>
           <p className="text-xs text-indigo-200 mt-1">
-            อัปโหลด PDF หรือรูปภาพ CV — ระบบจะแสดงข้อมูลสาธิต ไฟล์ชื่อต่างกันได้ข้อมูลต่างกัน
+            อัปโหลดไฟล์ PDF, PNG, JPG เพื่อสกัดข้อมูลอัตโนมัติด้วย AI แล้วบันทึกลงฐานข้อมูล
           </p>
-          <div className="flex flex-wrap gap-2 mt-3">
-            {DEMO_DATASETS.map((d, i) => (
-              <span key={i} className="text-[10px] bg-white/15 px-2 py-0.5 rounded-full border border-white/20">
-                ตัวอย่าง {i + 1}: {d.name.split(' ')[1]}
-              </span>
-            ))}
-          </div>
         </div>
       </div>
 
@@ -191,8 +252,8 @@ export default function AIParserPage() {
         {/* Upload area */}
         <div className="space-y-4">
           <FileUploader
-            onFileSelected={handleFileSelected}
-            isLoading={scanStatus === 'reading' || scanStatus === 'analyzing'}
+            onScan={handleFileSelected}
+            status={scanStatus}
           />
 
           {/* Status indicator */}
@@ -201,8 +262,8 @@ export default function AIParserPage() {
               {(scanStatus === 'reading' || scanStatus === 'analyzing') && (
                 <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin flex-shrink-0" />
               )}
-              <span>{STATUS_MSG[scanStatus].text}</span>
-              {fileName && <span className="text-slate-400 font-normal">({fileName})</span>}
+              <span>{scanStatus === 'error' && statusMsg ? statusMsg : STATUS_MSG[scanStatus].text}</span>
+              {fileName && scanStatus !== 'error' && <span className="text-slate-400 font-normal">({fileName})</span>}
             </div>
           )}
 
@@ -212,6 +273,16 @@ export default function AIParserPage() {
               <CheckCircle2 size={14} /> บันทึกเข้าระบบสำเร็จ — ปรากฏในทุกหน้าแล้ว
             </div>
           )}
+
+          {/* Mock Button */}
+          <div className="pt-2 border-t border-slate-100">
+            <button
+              onClick={handleGenerateMock}
+              className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition"
+            >
+              🚀 จำลองข้อมูล CV (Bypass AI)
+            </button>
+          </div>
 
           {/* Tip */}
           <div className="text-[11px] text-slate-400 bg-slate-50 rounded-lg px-3 py-2 border border-slate-100">
